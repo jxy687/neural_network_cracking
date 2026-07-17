@@ -46,8 +46,8 @@ from enum import IntEnum
 
 import pylru
 
-
-import generator
+# 未知模块 但是在 2046 行有用到
+# import generator
 
 PASSWORD_END = '\n'
 PASSWORD_START = '\t'
