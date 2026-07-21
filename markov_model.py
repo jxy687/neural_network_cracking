@@ -1,3 +1,34 @@
+# 调试
+import sys
+
+# 模拟命令行输入（sys.argv[0] 是脚本名，后面是参数）- 训练
+# sys.argv = [
+#     "markov_model.py",
+#     "-t", "jxy/input/my_train_passwords_markov.txt",
+#     "-o", "jxy/output/markov_model_k5.json",
+#     "-k", "5",
+#     "-s", "none",
+#     "-f", "tsv"
+# ]
+
+
+# 模拟命令行输入（sys.argv[0] 是脚本名，后面是参数）- 生成
+# sys.argv = [
+#     "markov_model.py",
+#     "-m", "jxy/output/markov_model_k5.json",
+#     "-o", "jxy/output/model_k5_markov_guesses_k2.txt",
+#     "-l", "jxy/log/guess_markov.log"
+# ]
+
+# 模拟命令行输入（sys.argv[0] 是脚本名，后面是参数）- 生成
+sys.argv = [
+    "markov_model.py",
+    "-m", "jxy/output/markov_model_k5.json",
+    "-o", "jxy/output/model_k5_markov_guesses_k5.txt",
+    "-l", "jxy/log/guess_markov.log",
+    "-k", "5"
+]
+
 # author: William Melicher
 import argparse
 import collections
@@ -97,10 +128,11 @@ class MarkovModel(object):
     def make_smoother(self):
         return self.SMOOTHING_MAP[self.smoothing](self.freq_dict, self.config)
 
+    # 训练 morkov 模型的关键代码
     def train_on_pwd(self, pwd, freq):
         pwd_len_plus_one = len(pwd) + 1
         for j in range(1, min(self.order, pwd_len_plus_one)):
-            self.increment(pwd[:j], freq)
+            self.increment(pwd[:j], freq)# 保存到字典 self.freq_dict 里面
         for i in range(pwd_len_plus_one - self.order):
             self.increment(pwd[i:i + self.order], freq)
         self.increment(pwd[-self.order + 1:] + pg.PASSWORD_END, freq)
@@ -109,7 +141,7 @@ class MarkovModel(object):
         ctr = 0
         for pwd, freq in pwds:
             ctr += 1
-            if ctr % self.LOGGING_FREQUENCY == 0:
+            if ctr % self.LOGGING_FREQUENCY == 0:# 指定每训练多少个不同的密码输出一次日志
                 logging.info('Training on password %d', ctr)
             self.train_on_pwd(pwd, freq)
         self.smoother = self.make_smoother()
@@ -134,6 +166,7 @@ class MarkovModel(object):
     def predict(self, context, answer):
         return self.smoother.predict(self.truncate_context(context), answer)
 
+    # 把训练得到的 self.freq_dict 保存到文件中
     def saveModel(self, fname):
         logging.info('Saving model to %s', fname)
         with open(fname, 'w') as ofile:
@@ -165,6 +198,7 @@ class BackoffMarkovModel(MarkovModel):
                 self.increment(pwd_norm[
                     pwd_idx:pwd_idx_plus_one + order_idx], freq)
 
+# 马尔可夫模型构建器,支持训练和加载 markov 模型
 class MarkovModelBuilder(object):
     def __init__(self, config,
                  smoothing = 'none', order = 2, model_file = None):
