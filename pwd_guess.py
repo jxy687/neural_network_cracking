@@ -22,7 +22,7 @@ import sys
 import tempfile
 import time
 
-
+import traceback
 # This is a hack to support multiple versions of the keras library.
 # It would be better to use a solution like virtualenv.
 if 'KERAS_PATH' in os.environ:
@@ -1498,10 +1498,16 @@ class PasswordTemplateSerializer(DelegatingSerializer):
                     freqs, template_char, preimage)
         return answer
 
-    def _calc(self, freqs, template_char, character):
-        return freqs[character] / sum(map(
-            lambda c: freqs[c], self.preimage[template_char]))
+    # def _calc(self, freqs, template_char, character):
+    #     return freqs[character] / sum(map(
+    #         lambda c: freqs[c], self.preimage[template_char]))
 
+    def _calc(self, freqs, template_char, character):
+        char_val = freqs.get(character, 0.0)
+        total = sum(map(lambda c: freqs.get(c, 0.0), self.preimage[template_char]))
+        if total == 0.0:
+            return 0.0
+        return char_val / total
     def calc(self, template_char, character, begin=False, end=False):
         if begin:
             return self.lookup_in_cache(
@@ -2377,6 +2383,8 @@ def init_logging(args):
     def except_hook(exctype, value, tb):
         logging.critical('Uncaught exception', exc_info=(exctype, value, tb))
         sys.stderr.write('Uncaught exception!\n %s\n' % (value))
+        # 打印完整调用栈到stderr
+        traceback.print_exception(exctype, value, tb)
     sys.excepthook = except_hook
     sys.setcheckinterval = 1000
     log_format = '%(asctime)-15s %(levelname)s: %(message)s'

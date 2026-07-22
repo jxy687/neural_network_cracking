@@ -1,0 +1,32 @@
+{
+"args": {
+    "arch_file": "./jxy-fla/output/model_arch.json",
+    "weight_file": "./jxy-fla/output/model_weights.h5.2",
+    "log_file": "./jxy-fla/log/guess_log.txt",
+    "enumerate_ofile": "./jxy-fla/output/enumerate.tsv"
+},
+"config": {
+    "training_chunk": 1000,
+    "min_len": 4,
+    "max_len": 11,
+    "context_length": 10,
+    "layers": 2,
+    "hidden_size": 1000,
+    "model_type": "LSTM",
+    "simulated_frequency_optimization": false,
+    "intermediate_fname": "intermediate_data.sqlite",
+    "randomize_training_order": true,
+    "uppercase_character_optimization": true,
+    "rare_character_optimization": true,
+    "rare_character_optimization_guessing": true,
+    "parallel_guessing": false,
+    "lower_probability_threshold": 0.0,
+    "padding_character": true,
+    "chunk_size_guesser": 20000,
+    "guess_serialization_method": "human",
+    "random_walk_seed_num": 100000,
+    "max_gpu_prediction_size": 20000,
+    "random_walk_seed_iterations": 1,
+    "no_end_word_cache": true
+}
+}
